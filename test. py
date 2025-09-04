@@ -1,36 +1,44 @@
 def bowling_score(frames):
-    # Flatten frames
+    # --- Validation ---
+    for frame in frames:
+        # Make sure frame is a list/tuple and has 1–3 rolls
+        if not isinstance(frame, (list, tuple)):
+            raise ValueError(f"Invalid frame: {frame}")
+        if len(frame) < 1 or len(frame) > 3:
+            raise ValueError(f"Invalid frame length: {frame}")
+        # Check each roll
+        for pins in frame:
+            if pins < 0 or pins > 10:
+                raise ValueError(f"Impossible roll: {pins} pins")
+        # For frames with 2 rolls (not strike), total must not exceed 10
+        if len(frame) >= 2 and sum(frame[:2]) > 10 and frame[0] != 10:
+            raise ValueError(f"Invalid frame total: {frame}")
+
+    # --- Flatten frames into rolls ---
     rolls = []
     for frame in frames:
-        if isinstance(frame, int):
-            rolls.append(frame)
-        else:
-            rolls.extend(frame)
+        for roll in frame:
+            rolls.append(roll)
 
+    # --- Calculate score ---
     score = 0
     roll_index = 0
-
     for frame in range(10):  # 10 frames max
         if roll_index >= len(rolls):
             break
 
-        # STRIKE
+        # Strike
         if rolls[roll_index] == 10:
-            score += 10
-            if roll_index + 1 < len(rolls):
-                score += rolls[roll_index + 1]
-            if roll_index + 2 < len(rolls):
-                score += rolls[roll_index + 2]
+            bonus1 = rolls[roll_index + 1] if roll_index + 1 < len(rolls) else 0
+            bonus2 = rolls[roll_index + 2] if roll_index + 2 < len(rolls) else 0
+            score += 10 + bonus1 + bonus2
             roll_index += 1
-
-        # SPARE
+        # Spare
         elif roll_index + 1 < len(rolls) and rolls[roll_index] + rolls[roll_index + 1] == 10:
-            score += 10
-            if roll_index + 2 < len(rolls):
-                score += rolls[roll_index + 2]
+            bonus = rolls[roll_index + 2] if roll_index + 2 < len(rolls) else 0
+            score += 10 + bonus
             roll_index += 2
-
-        # OPEN FRAME
+        # Open frame
         else:
             score += rolls[roll_index]
             if roll_index + 1 < len(rolls):
@@ -40,19 +48,34 @@ def bowling_score(frames):
     return score
 
 
-# --- TEST CASES ---
-print("Running tests...")
+# --- Tests (from your image) ---
+def run_tests():
+    # Valid input tests
+    assert bowling_score([[0],[0],[0],[0],[0],[0],[0],[0],[0],[0]]) == 0
+    assert bowling_score([[3,3]]*10) == 60
+    assert bowling_score([[10]]*12) == 300
+    assert bowling_score([[5,5]]*9 + [[5,5,5]]) == 150
+    assert bowling_score([[5,3],[10],[4,6]]) == 38
+    assert bowling_score([[3,4]]) == 24
+    assert bowling_score([[10],[5,5],[3,2],[10]]) == 48
+    assert bowling_score([[0],[0],[0],[0],[0],[0],[0],[0],[10,7,3]]) == 20
+    assert bowling_score([[0],[0],[0],[0],[0],[0],[0],[0],[7,3,5]]) == 15
+    assert bowling_score([[5,3],[10],[4,6],[0,0],[8,1],[10],[6,3],[7,2],[10,10,10]]) == 140
+    assert bowling_score([[5,4],[3,3],[7,3],[10]]) == 45
 
-# Test 1: Perfect game (12 strikes → 300)
-assert bowling_score([10] * 12) == 300
-print("Test 1 Passed!")
+    # Invalid input tests
+    try:
+        bowling_score([[15,5]])
+    except ValueError as e:
+        assert "Impossible roll" in str(e)
 
-# Test 2: All open frames (4,5 → 90)
-assert bowling_score([(4, 5)] * 10) == 90
-print("Test 2 Passed!")
+    try:
+        bowling_score([[5,8]])
+    except ValueError as e:
+        assert "Invalid frame total" in str(e)
 
-# Test 3: All spares with 5 pins + bonus 5 (→ 150)
-assert bowling_score([(5, 5)] * 9 + [(5, 5, 5)]) == 150
-print("Test 3 Passed!")
+    print("All tests passed!")
 
-print("\nAll tests passed!")
+
+if __name__ == "__main__":
+    run_tests()
