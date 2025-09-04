@@ -1,0 +1,58 @@
+def bowling_score(frames):
+    # Flatten frames
+    rolls = []
+    for frame in frames:
+        if isinstance(frame, int):
+            rolls.append(frame)
+        else:
+            rolls.extend(frame)
+
+    score = 0
+    roll_index = 0
+
+    for frame in range(10):  # 10 frames max
+        if roll_index >= len(rolls):
+            break
+
+        # STRIKE
+        if rolls[roll_index] == 10:
+            score += 10
+            if roll_index + 1 < len(rolls):
+                score += rolls[roll_index + 1]
+            if roll_index + 2 < len(rolls):
+                score += rolls[roll_index + 2]
+            roll_index += 1
+
+        # SPARE
+        elif roll_index + 1 < len(rolls) and rolls[roll_index] + rolls[roll_index + 1] == 10:
+            score += 10
+            if roll_index + 2 < len(rolls):
+                score += rolls[roll_index + 2]
+            roll_index += 2
+
+        # OPEN FRAME
+        else:
+            score += rolls[roll_index]
+            if roll_index + 1 < len(rolls):
+                score += rolls[roll_index + 1]
+            roll_index += 2
+
+    return score
+
+
+# --- TEST CASES ---
+print("Running tests...")
+
+# Test 1: Perfect game (12 strikes → 300)
+assert bowling_score([10] * 12) == 300
+print("Test 1 Passed!")
+
+# Test 2: All open frames (4,5 → 90)
+assert bowling_score([(4, 5)] * 10) == 90
+print("Test 2 Passed!")
+
+# Test 3: All spares with 5 pins + bonus 5 (→ 150)
+assert bowling_score([(5, 5)] * 9 + [(5, 5, 5)]) == 150
+print("Test 3 Passed!")
+
+print("\nAll tests passed!")
