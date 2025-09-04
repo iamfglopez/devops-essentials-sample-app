@@ -1,15 +1,18 @@
 def bowling_score(frames):
-    # Flatten frames into a single list of rolls
+    # Flatten all frames into one list of rolls
     rolls = []
     for frame in frames:
-        rolls.extend(frame)
+        for roll in frame:
+            rolls.append(roll)
 
     score = 0
     roll_index = 0
-    frame_count = 0
 
-    # Only score up to 10 frames
-    while frame_count < 10 and roll_index < len(rolls):
+    # Process up to 10 frames
+    for frame in range(10):
+        if roll_index >= len(rolls):
+            break
+
         # Strike
         if rolls[roll_index] == 10:
             score += 10
@@ -18,12 +21,14 @@ def bowling_score(frames):
             if roll_index + 2 < len(rolls):
                 score += rolls[roll_index + 2]
             roll_index += 1
+
         # Spare
         elif roll_index + 1 < len(rolls) and rolls[roll_index] + rolls[roll_index + 1] == 10:
             score += 10
             if roll_index + 2 < len(rolls):
                 score += rolls[roll_index + 2]
             roll_index += 2
+
         # Open frame
         else:
             score += rolls[roll_index]
@@ -31,23 +36,24 @@ def bowling_score(frames):
                 score += rolls[roll_index + 1]
             roll_index += 2
 
-        frame_count += 1
-
     return score
 
 
-# --- Full Test Suite ---
-assert bowling_score([[0]] * 10) == 0                               # All gutter balls
-assert bowling_score([[3, 3]] * 10) == 60                           # All open frames
-assert bowling_score([[10]] * 12) == 300                            # Perfect game
-assert bowling_score([[5, 5]] * 9 + [[5, 5, 5]]) == 150             # All spares with final 5
-assert bowling_score([[5, 3], [10], [4, 6]]) == 38                  # Mixed example
-assert bowling_score([[3, 4]]) == 7                                 # Single frame (corrected)
-assert bowling_score([[10], [5, 5], [3, 2], [10]]) == 48            # Strike + spare + open
-assert bowling_score([[0]] * 8 + [[10, 7, 3]]) == 20                # Strike in last frame
-assert bowling_score([[0]] * 8 + [[7, 3, 5]]) == 15                 # Spare in last frame
-assert bowling_score([[5, 3], [10], [4, 6], [0, 0], [8, 1], [10], 
-                      [6, 3], [7, 2], [10, 10, 10]]) == 140         # Complex sequence
-assert bowling_score([[5, 4], [3, 3], [7, 3], [10]]) == 45          # Mixed with early spare
+# --- Test Cases ---
+# Basic
+assert bowling_score([[0]] * 10) == 0                            # All gutter balls
+assert bowling_score([[3, 3]] * 10) == 60                        # All open frames
+assert bowling_score([[10]] * 12) == 300                         # Perfect game
+assert bowling_score([[5, 5]] * 9 + [[5, 5, 5]]) == 150          # All spares with final 5
+assert bowling_score([[5, 3], [10], [4, 6]]) == 38               # Mixed sample
+assert bowling_score([[3, 4]]) == 7                              # Single frame
+
+# Mixed/edge cases
+assert bowling_score([[10], [5, 5], [3, 2], [10]]) == 48         # Strike + spare + open
+assert bowling_score([[0]] * 8 + [[10, 7, 3]]) == 20             # Strike in last frame
+assert bowling_score([[0]] * 8 + [[7, 3, 5]]) == 15              # Spare in last frame
+assert bowling_score([[5, 3], [10], [4, 6], [0, 0], [8, 1],
+                      [10], [6, 3], [7, 2], [10, 10, 10]]) == 140
+assert bowling_score([[5, 4], [3, 3], [7, 3], [10]]) == 45
 
 print("All tests passed!")
