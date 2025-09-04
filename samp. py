@@ -1,0 +1,8 @@
+# Perfect game (12 strikes → 300)
+assert your_bowling_score_function([10]*12) == 300
+
+# All open frames (no spares/strikes)
+assert your_bowling_score_function([(4,5)]*10) == 90
+
+# All spares with 5 pins + final 5
+assert your_bowling_score_function([(5,5)]*9 + [(5,5,5)]) == 150
